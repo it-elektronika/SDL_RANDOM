@@ -11,12 +11,17 @@ SDL_Texture* gpu;
 SDL_Surface *tempSurface;
 SDL_Surface *voltSurface;
 SDL_Surface *gpuSurface;
-
+SDL_Surface *testSurface;
 SDL_Rect tempQuad;	 
 SDL_Rect voltQuad;	
 SDL_Rect gpuQuad;	
 TTF_Font* textFont = NULL;
 SDL_Color textColor = {0, 0, 0, 0};
+
+SDL_Rect testQuad;
+
+int a; 
+int b;
 
 int i;
 int counter = 0;
@@ -45,7 +50,8 @@ int currentTime = 0;
 int main(int argc, char *argv[])
 {
   printf("POINT START\n");
-
+  a = 30;
+  b = 50;
   SDL_Init(SDL_INIT_VIDEO);
   if(TTF_Init() == -1)
   {
@@ -54,13 +60,24 @@ int main(int argc, char *argv[])
   
   textFont = TTF_OpenFont("BebasNeue Bold.ttf", 30);
 
-  window = SDL_CreateWindow("PIP", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, SDL_WINDOW_SHOWN);
+  window = SDL_CreateWindow("PIP", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 800, SDL_WINDOW_BORDERLESS);
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   while(1)
   {
+    if(a > 700)
+    {
+      a = 20;
+    }
+    if(b > 900)
+    {
+      b = 30;
+    } 
+    SDL_SetRenderDrawColor(renderer, counter, 255, 255, 255);
     printf("POINT A\n");
+    SDL_ShowCursor(SDL_DISABLE);
+    printf("CURSOR: %d\n", SDL_ShowCursor(SDL_QUERY)); 
     i = 0;
     currentTime = SDL_GetTicks();
     printf("CURRENT: %d, LAST: %d, LAST+1000: %d\n", currentTime, lastTime, lastTime+1000);
@@ -74,7 +91,7 @@ int main(int argc, char *argv[])
       system("vcgencmd measure_volts >> volt_all.txt");   
      
       system("vcgencmd get_mem gpu >> gpu.txt");
-      system("vcgencmd get mem gpu >> gpu_all.txt");
+      system("vcgencmd get_mem gpu >> gpu_all.txt");
       
       if((f1 = fopen("temp.txt", "r")) == NULL)
       {
@@ -134,17 +151,17 @@ int main(int argc, char *argv[])
       gpu_buf[i] = '\0';  
       fclose(f3);
       
-      for(i = 0; i < 13; i++)
+      for(i = 0; i < 11; i++)
       {
         printf("VOLT[%d]: %c \n", i, volt_rez[i]);
       }
 
-      for(i = 0; i < 12; i++)
+      for(i = 0; i < 11; i++)
       {
         printf("TEMP[%d]: %c \n", i, temp_rez[i]);
       }
 
-      for(i = 0; i < 12; i++)
+      for(i = 0; i < 7; i++)
       {
         printf("GPU[%d]: %c \n", i, gpu_rez[i]);
       }
@@ -170,7 +187,8 @@ int main(int argc, char *argv[])
     tempSurface = TTF_RenderText_Solid(textFont, temp_rez, textColor);
     voltSurface = TTF_RenderText_Solid(textFont, volt_rez, textColor);
     gpuSurface  = TTF_RenderText_Solid(textFont, gpu_rez, textColor);
-
+    testSurface = SDL_CreateRGBSurface(0, 800, 800, 32, 0, 0, 0, 0);
+  
     temp = SDL_CreateTextureFromSurface(renderer, tempSurface);
     volt = SDL_CreateTextureFromSurface(renderer, voltSurface);
     gpu = SDL_CreateTextureFromSurface(renderer, gpuSurface);
@@ -178,6 +196,7 @@ int main(int argc, char *argv[])
     SDL_FreeSurface(tempSurface);
     SDL_FreeSurface(voltSurface);
     SDL_FreeSurface(gpuSurface);
+    SDL_FreeSurface(testSurface);
 
     if(tempSurface == NULL)
     {
@@ -213,12 +232,21 @@ int main(int argc, char *argv[])
       gpuQuad.w = textureWidth;
       gpuQuad.h = textureHeight;    	  
 
+
+      testQuad.x = 400;
+      testQuad.y = 100;
+      testQuad.w = a;
+      testQuad.h = b;
+      SDL_SetRenderDrawColor(renderer, a, b, 255, 255);
+      SDL_RenderFillRect(renderer, &testQuad);
+      
       SDL_RenderCopy(renderer, temp, NULL, &tempQuad);
       SDL_RenderCopy(renderer, volt, NULL, &voltQuad);
       SDL_RenderCopy(renderer, gpu, NULL, &gpuQuad);
-
       SDL_RenderPresent(renderer);
       counter++;
+      a++;
+      b++;
     }
     printf("POINT C\n");
     printf("POINT D\n");
